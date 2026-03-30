@@ -1,20 +1,26 @@
 from flask import Flask, request, render_template
 import pandas as pd
 import pickle
+import os
 
 app = Flask(__name__)
 
-# Load model
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 try:
-    model = pickle.load(open("model.pkl", "rb"))
-    vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-except:
+    model = pickle.load(open(os.path.join(BASE_DIR, "model.pkl"), "rb"))
+    vectorizer = pickle.load(open(os.path.join(BASE_DIR, "vectorizer.pkl"), "rb"))
+except Exception as e:
+    print("Model loading error:", e)
     model = None
     vectorizer = None
 
-# Load datasets
-items = pd.read_csv("20191226-items.csv")
-reviews = pd.read_csv("20191226-reviews.csv")
+items = pd.read_csv(os.path.join(BASE_DIR, "20191226-items.csv"))
+
+reviews = pd.read_csv(
+    os.path.join(BASE_DIR, "20191226-reviews.csv"),
+    usecols=["asin", "body"]
+)
 
 review_col = "body"
 
@@ -59,3 +65,6 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+app = Flask(__name__)
+app.debug = True
